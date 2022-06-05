@@ -28,7 +28,6 @@ Point g_RightBottom;							// Lưu tọa độ chuột lúc sau
 ShapePrototype g_ShapeModel;
 Shape* g_PreviewShape;
 
-
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -91,9 +90,6 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	WNDCLASSEXW wcex;
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
-
-	
-
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
 	wcex.lpfnWndProc = WndProc;
 	wcex.cbClsExtra = 0;
@@ -167,14 +163,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		g_ShapeModel.addModel(ShapeFactory::GetObjectType(TypeShape::SEMI_CIRCLE));
 		g_ShapeModel.addModel(ShapeFactory::GetObjectType(TypeShape::TRIANGLE));
 		g_ShapeModel.addModel(ShapeFactory::GetObjectType(TypeShape::PENTAGON));
+		g_ShapeModel.addModel(ShapeFactory::GetObjectType(TypeShape::HEXAGON));
 
 
 		// Khởi tạo giá trị false lúc chưa vẽ
 		g_IsDrawed = FALSE;
 
 		g_PreviewShape = NULL;
-
-
 
 		break;
 	case WM_LBUTTONDOWN: // giữ chuột
@@ -208,8 +203,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			if (((wParam & MK_SHIFT) && 
 				(curShapeType == SHAPE_ELLIPSE || 
-					curShapeType == SHAPE_RECTANGLE)) || 
-					curShapeType == SHAPE_PENTAGON ) {
+					curShapeType == SHAPE_RECTANGLE )) || 
+					curShapeType == SHAPE_PENTAGON ||
+					curShapeType == SHAPE_HEXAGON) {
 				int d_Ox = abs(g_RightBottom.x - g_LeftTop.x);
 				int d_Oy = abs(g_RightBottom.y - g_LeftTop.y);
 				int d_a = min(d_Ox, d_Oy);
@@ -302,6 +298,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			CheckMenuItem(hMenu, ID_SHAPE_SEMI, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_TRIANGLE, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_PENTAGON, MF_UNCHECKED);
+			CheckMenuItem(hMenu, ID_SHAPE_HEXAGON, MF_UNCHECKED);
 
 			g_ShapeModel.setCurShapeType(SHAPE_LINE);
 			break;
@@ -315,7 +312,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			CheckMenuItem(hMenu, ID_SHAPE_SEMI, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_TRIANGLE, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_PENTAGON, MF_UNCHECKED);
-
+			CheckMenuItem(hMenu, ID_SHAPE_HEXAGON, MF_UNCHECKED);
 			g_ShapeModel.setCurShapeType(SHAPE_RECTANGLE);
 			break;
 		}
@@ -328,7 +325,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			CheckMenuItem(hMenu, ID_SHAPE_SEMI, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_TRIANGLE, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_PENTAGON, MF_UNCHECKED);
-
+			CheckMenuItem(hMenu, ID_SHAPE_HEXAGON, MF_UNCHECKED);
 			g_ShapeModel.setCurShapeType(SHAPE_ELLIPSE);
 			break;
 		}
@@ -340,7 +337,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			CheckMenuItem(hMenu, ID_SHAPE_SEMI, MF_CHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_TRIANGLE, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_PENTAGON, MF_UNCHECKED);
-
+			CheckMenuItem(hMenu, ID_SHAPE_HEXAGON, MF_UNCHECKED);
 			g_ShapeModel.setCurShapeType(SHAPE_SEMI_CIRCLE);
 			break;
 		}
@@ -351,8 +348,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			CheckMenuItem(hMenu, ID_SHAPE_ELLIPSE, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_SEMI, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_TRIANGLE, MF_CHECKED);
-			CheckMenuItem(hMenu, ID_SHAPE_POLYGON, MF_UNCHECKED);
-
+			CheckMenuItem(hMenu, ID_SHAPE_PENTAGON, MF_UNCHECKED);
+			CheckMenuItem(hMenu, ID_SHAPE_HEXAGON, MF_UNCHECKED);
 			g_ShapeModel.setCurShapeType(SHAPE_TRIANGLE);
 			break;
 		}
@@ -364,8 +361,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			CheckMenuItem(hMenu, ID_SHAPE_SEMI, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_TRIANGLE, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_PENTAGON, MF_CHECKED);
-
+			CheckMenuItem(hMenu, ID_SHAPE_HEXAGON, MF_UNCHECKED);
 			g_ShapeModel.setCurShapeType(SHAPE_PENTAGON);
+			break;
+		}
+		case ID_SHAPE_HEXAGON:
+		{
+			CheckMenuItem(hMenu, ID_SHAPE_LINE, MF_UNCHECKED);
+			CheckMenuItem(hMenu, ID_SHAPE_RECTANGLE, MF_UNCHECKED);
+			CheckMenuItem(hMenu, ID_SHAPE_ELLIPSE, MF_UNCHECKED);
+			CheckMenuItem(hMenu, ID_SHAPE_SEMI, MF_UNCHECKED);
+			CheckMenuItem(hMenu, ID_SHAPE_TRIANGLE, MF_UNCHECKED);
+			CheckMenuItem(hMenu, ID_SHAPE_PENTAGON, MF_UNCHECKED);
+			CheckMenuItem(hMenu, ID_SHAPE_HEXAGON, MF_CHECKED);
+			g_ShapeModel.setCurShapeType(SHAPE_HEXAGON);
 			break;
 		}
 		break;

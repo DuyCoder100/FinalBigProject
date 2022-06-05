@@ -41,6 +41,10 @@ Shape* ShapeFactory::GetObjectType(TypeShape _type)
 	{
 		return new CPentagon();
 	}
+	case HEXAGON:
+	{
+		return new CHexagon();
+	}
 	break;
 	}
 	return NULL;

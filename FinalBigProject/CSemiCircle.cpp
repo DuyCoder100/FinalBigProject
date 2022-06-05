@@ -13,8 +13,11 @@ void CSemiCircle::Draw(HDC hdc, Point LeftTop, Point RightBottom)
 	this->m_LeftTop = LeftTop;
 	this->m_RightBottom = RightBottom;
 
-	Chord(hdc, LeftTop.x, LeftTop.y, RightBottom.x, RightBottom.y,
-		LeftTop.x, LeftTop.y, RightBottom.x, RightBottom.y);
+	LONG radius = (RightBottom.x - LeftTop.x) / 2;
+	MoveToEx(hdc, LeftTop.x + radius, LeftTop.y, 0);
+	LineTo(hdc, LeftTop.x, LeftTop.y);
+	AngleArc(hdc, LeftTop.x, LeftTop.y, radius, 0, 180);
+	LineTo(hdc, LeftTop.x + radius, LeftTop.y);
 }
 
 void CSemiCircle::ReDraw(HDC hdc)

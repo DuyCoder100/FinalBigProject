@@ -5,6 +5,7 @@
 #include "CSemiCircle.h"
 #include "CTriangle.h"
 #include "CPentagon.h"
+#include "CHexagon.h"
 
 enum TypeShape {
 	LINE,

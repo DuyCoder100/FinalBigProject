@@ -29,10 +29,23 @@ void CHexagon::Draw(HDC hdc, Point LeftTop, Point RightBottom)
 	arr[4].x = LeftTop.x;
 	arr[4].y = RightBottom.y - (RightBottom.x - arr[0].x) * tanf(30 * 3.14 / 180);
 
+	arr[5].x = LeftTop.x;
+	arr[5].y = LeftTop.y + (RightBottom.x - arr[0].x) * tanf(30 * 3.14 / 180);
+
 	Polygon(hdc, arr, 6);
 }
 
 void CHexagon::ReDraw(HDC hdc)
 {
 	this->Draw(hdc, this->m_LeftTop, this->m_RightBottom);
+}
+
+Shape* CHexagon::Clone()
+{
+	return new CHexagon();
+}
+
+string CHexagon::getClassName()
+{
+	return "Hexagon";
 }
