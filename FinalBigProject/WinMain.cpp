@@ -166,6 +166,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		g_ShapeModel.addModel(ShapeFactory::GetObjectType(TypeShape::ELLIPSE));
 		g_ShapeModel.addModel(ShapeFactory::GetObjectType(TypeShape::SEMI_CIRCLE));
 		g_ShapeModel.addModel(ShapeFactory::GetObjectType(TypeShape::TRIANGLE));
+		g_ShapeModel.addModel(ShapeFactory::GetObjectType(TypeShape::PENTAGON));
 
 
 		// Khởi tạo giá trị false lúc chưa vẽ
@@ -201,12 +202,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		y = GET_Y_LPARAM(lParam);
 		if (g_IsDrawed)
 		{
-
 			g_RightBottom.x = x;
 			g_RightBottom.y = y;
 			int curShapeType = g_ShapeModel.getCurShapeType();
 
-			if (((wParam & MK_SHIFT) && (curShapeType == SHAPE_ELLIPSE || curShapeType == SHAPE_RECTANGLE) || curShapeType == SHAPE_SEMI_CIRCLE)) {
+			if (((wParam & MK_SHIFT) && 
+				(curShapeType == SHAPE_ELLIPSE || 
+					curShapeType == SHAPE_RECTANGLE)) || 
+					curShapeType == SHAPE_PENTAGON ) {
 				int d_Ox = abs(g_RightBottom.x - g_LeftTop.x);
 				int d_Oy = abs(g_RightBottom.y - g_LeftTop.y);
 				int d_a = min(d_Ox, d_Oy);
@@ -298,7 +301,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			CheckMenuItem(hMenu, ID_SHAPE_ELLIPSE, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_SEMI, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_TRIANGLE, MF_UNCHECKED);
-			CheckMenuItem(hMenu, ID_SHAPE_POLYGON, MF_UNCHECKED);
+			CheckMenuItem(hMenu, ID_SHAPE_PENTAGON, MF_UNCHECKED);
 
 			g_ShapeModel.setCurShapeType(SHAPE_LINE);
 			break;
@@ -311,7 +314,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			CheckMenuItem(hMenu, ID_SHAPE_ELLIPSE, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_SEMI, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_TRIANGLE, MF_UNCHECKED);
-			CheckMenuItem(hMenu, ID_SHAPE_POLYGON, MF_UNCHECKED);
+			CheckMenuItem(hMenu, ID_SHAPE_PENTAGON, MF_UNCHECKED);
 
 			g_ShapeModel.setCurShapeType(SHAPE_RECTANGLE);
 			break;
@@ -324,7 +327,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			CheckMenuItem(hMenu, ID_SHAPE_ELLIPSE, MF_CHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_SEMI, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_TRIANGLE, MF_UNCHECKED);
-			CheckMenuItem(hMenu, ID_SHAPE_POLYGON, MF_UNCHECKED);
+			CheckMenuItem(hMenu, ID_SHAPE_PENTAGON, MF_UNCHECKED);
 
 			g_ShapeModel.setCurShapeType(SHAPE_ELLIPSE);
 			break;
@@ -336,7 +339,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			CheckMenuItem(hMenu, ID_SHAPE_ELLIPSE, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_SEMI, MF_CHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_TRIANGLE, MF_UNCHECKED);
-			CheckMenuItem(hMenu, ID_SHAPE_POLYGON, MF_UNCHECKED);
+			CheckMenuItem(hMenu, ID_SHAPE_PENTAGON, MF_UNCHECKED);
 
 			g_ShapeModel.setCurShapeType(SHAPE_SEMI_CIRCLE);
 			break;
@@ -353,16 +356,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			g_ShapeModel.setCurShapeType(SHAPE_TRIANGLE);
 			break;
 		}
-		case ID_SHAPE_POLYGON:
+		case ID_SHAPE_PENTAGON:
 		{
 			CheckMenuItem(hMenu, ID_SHAPE_LINE, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_RECTANGLE, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_ELLIPSE, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_SEMI, MF_UNCHECKED);
 			CheckMenuItem(hMenu, ID_SHAPE_TRIANGLE, MF_UNCHECKED);
-			CheckMenuItem(hMenu, ID_SHAPE_POLYGON, MF_CHECKED);
+			CheckMenuItem(hMenu, ID_SHAPE_PENTAGON, MF_CHECKED);
 
-			g_ShapeModel.setCurShapeType(SHAPE_POLYGON);
+			g_ShapeModel.setCurShapeType(SHAPE_PENTAGON);
 			break;
 		}
 		break;

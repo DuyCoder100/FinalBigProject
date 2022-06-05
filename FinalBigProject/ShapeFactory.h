@@ -4,6 +4,7 @@
 #include "CEllipse.h"
 #include "CSemiCircle.h"
 #include "CTriangle.h"
+#include "CPentagon.h"
 
 enum TypeShape {
 	LINE,

@@ -18,7 +18,7 @@ ShapePrototype::~ShapePrototype()
 // Function
 bool ShapePrototype::setCurShapeType(int curShapeType)
 {
-	if (curShapeType >= 0 && curShapeType <= 4)
+	if (curShapeType >= 0 && curShapeType <= 5)
 	{
 		this->m_curShapeType = curShapeType;
 		return true;

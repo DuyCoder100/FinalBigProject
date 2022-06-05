@@ -10,8 +10,6 @@ class Shape
 protected:
 	Point m_LeftTop;
 	Point m_RightBottom;
-	Point m_Point1;
-	Point m_Point2;
 	int type;
 public:
 	//Constructor, Destructor

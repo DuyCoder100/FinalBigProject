@@ -37,6 +37,10 @@ Shape* ShapeFactory::GetObjectType(TypeShape _type)
 	{
 		return new CTriangle();
 	}
+	case PENTAGON:
+	{
+		return new CPentagon();
+	}
 	break;
 	}
 	return NULL;

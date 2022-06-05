@@ -57,6 +57,12 @@
     <ClInclude Include="ShapePrototype.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CPentagon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CHexagon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -90,6 +96,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ShapePrototype.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CPentagon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CHexagon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

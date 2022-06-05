@@ -128,7 +128,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CEllipse.h" />
+    <ClInclude Include="CHexagon.h" />
     <ClInclude Include="CLine.h" />
+    <ClInclude Include="CPentagon.h" />
     <ClInclude Include="CRectangle.h" />
     <ClInclude Include="CSemiCircle.h" />
     <ClInclude Include="CTriangle.h" />
@@ -144,7 +146,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CEllipse.cpp" />
+    <ClCompile Include="CHexagon.cpp" />
     <ClCompile Include="CLine.cpp" />
+    <ClCompile Include="CPentagon.cpp" />
     <ClCompile Include="CRectangle.cpp" />
     <ClCompile Include="CSemiCircle.cpp" />
     <ClCompile Include="CTriangle.cpp" />

@@ -12,7 +12,8 @@
 #define SHAPE_ELLIPSE 2
 #define SHAPE_SEMI_CIRCLE 3
 #define SHAPE_TRIANGLE 4
-#define SHAPE_POLYGON 5
+#define SHAPE_PENTAGON 5
+#define SHAPE_HEXAGON 6
 
 
 class ShapePrototype
