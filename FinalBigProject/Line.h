@@ -10,7 +10,7 @@ public:
 	
 	Line() {};
 	~Line() {};
-	//Ax + By = C;
+	//Cac he so A, B, C cua phuong trinh duong thang Ax + By = C
 	vector<int> getCoefs();
 	void setToaDo(Point D, Point E);
 	bool isIntersect(Line l);

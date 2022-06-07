@@ -88,12 +88,25 @@ bool CSemiCircle::isIntersect(Line l)
 	double xO = center.x * 1.0;
 	double yO = center.y * 1.0;
 
+	Point M;
+	M.x = xO - R;
+	M.y = yO;
+
+	Point N;
+	N.x = xO + R;
+	N.y = yO;
+
+	Line MN;
+	MN.setToaDo(M, N);
+
 	double A = m * m + 1;
 	double B = 2 * (m * (n - yO) - xO);
 	double C = xO * xO + (n - yO) * (n - yO) - R * R;
 
 	int roots = numberOfRootsOfQuadraticEquation(A, B, C);
-	return (roots == 2);
+	if (roots == 2 && !isPassThrough(l.A) && !isPassThrough(l.B)) return true;
+	if (roots == 1) return MN.isIntersect(l);
+	return false;
 }
 
 string CSemiCircle::getClassName()

@@ -72,7 +72,7 @@ bool CRectangle::isIntersect(Line l)
 	DA.setToaDo(D, A);
 	if (DA.isIntersect(l)) ++count;
 
-	return (count == 2 && !l.isBetween(A) && !l.isBetween(B) && !l.isBetween(C) && !l.isBetween(D));
+	return (count == 2);
 }
 
 string CRectangle::getClassName()
