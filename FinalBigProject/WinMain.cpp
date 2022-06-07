@@ -153,9 +153,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	WCHAR COUNT[][50] = { L"Zero", L"One", L"Two", L"Three", L"Four", L"Five", L"Six", L"Seven",
-		L"Eight", L"Nine"};
+		L"Eight", L"Nine" };
 	int x, y; // Lấy tọa độ hiện tại của con chuột
-	int count = 0;
+	static int count = 0;
+	
 	HMENU hMenu = GetMenu(hWnd);
 	switch (message)
 	{
@@ -211,11 +212,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			g_RightBottom.y = y;
 			int curShapeType = g_ShapeModel.getCurShapeType();
 
-			if (((wParam & MK_SHIFT) && 
-				(curShapeType == SHAPE_ELLIPSE || 
-					curShapeType == SHAPE_RECTANGLE )) || 
-					curShapeType == SHAPE_PENTAGON ||
-					curShapeType == SHAPE_HEXAGON) {
+			if (((wParam & MK_SHIFT) &&
+				(curShapeType == SHAPE_ELLIPSE ||
+					curShapeType == SHAPE_RECTANGLE)) ||
+				curShapeType == SHAPE_PENTAGON ||
+				curShapeType == SHAPE_HEXAGON) {
 				int d_Ox = abs(g_RightBottom.x - g_LeftTop.x);
 				int d_Oy = abs(g_RightBottom.y - g_LeftTop.y);
 				int d_a = min(d_Ox, d_Oy);
@@ -249,90 +250,111 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (!g_IsDrawed) { // Chưa được vẽ
 			break;
 		}
-
+		//g_DrawedShapes.resize(100);
 		g_DrawedShapes.push_back(g_PreviewShape);
 		g_PreviewShape = NULL;
 
+		for (auto shape_1: g_DrawedShapes)
+		{
+			if (shape_1->getClassName().compare("CLine") == 0) {
+				Line l;
+				l.setToaDo(shape_1->GetFirstPoint(), shape_1->GetSecondPoint());
+				for (auto shape_2: g_DrawedShapes) {
+					if (shape_2->isIntersect(l)) {
+						gLogBrush.lbColor = RED;
+						++count;
+						shape_2->flag = 1;
+					}
+					else {
+						gLogBrush.lbColor = BLUE;
+						shape_2->flag = 0;
+					}
+					shape_2->setColor(gLogBrush);
+				}
+			}
+		}
 		g_IsDrawed = FALSE;
 		InvalidateRect(hWnd, NULL, TRUE);
 	}
 	break;
-	case WM_KEYDOWN: 
-		switch(wParam)
+	case WM_KEYDOWN:
+		switch (wParam)
 		{
-			case VK_CONTROL:
+		case VK_CONTROL:
+		{
+			gControlDown = true;
+			break;
+		}
+		case 0x5A: //Z Button
+		{
+			if (gControlDown && g_DrawedShapes.size() != 0)
 			{
-				gControlDown = true;
-				break;
-			}
-			case 0x5A: //Z Button
-			{
-				if (gControlDown && g_DrawedShapes.size() != 0)
-				{
-					Shape* shape = g_DrawedShapes[g_DrawedShapes.size() - 1];
-					g_DrawedShapes.pop_back();
-					delete shape;
-					InvalidateRect(hWnd, 0, TRUE);
-					break;
-				}
-			}
-			case VK_DELETE: //Delete button
-			{
-				while (g_DrawedShapes.size() > 0) 
-				{
-					Shape* bufShape = g_DrawedShapes[g_DrawedShapes.size() - 1];
-					delete bufShape;
-					g_DrawedShapes.pop_back();
-				}
+				Shape* shape = g_DrawedShapes[g_DrawedShapes.size() - 1];
+				g_DrawedShapes.pop_back();
+				delete shape;
 				InvalidateRect(hWnd, 0, TRUE);
 				break;
 			}
-			case 0x53: //S button
-			{
-				bool f_Save = saveShape("data.db", g_DrawedShapes);
-				WCHAR bufferInform[100];
-				if (f_Save) {
-					wsprintf(bufferInform, L"Lưu file thành công");
-				}
-				else {
-					wsprintf(bufferInform, L"Lưu file thất bại");
-				}
-				MessageBox(hWnd, bufferInform, L"Lưu file", MB_OK);
-			}
-			case 0x4C: //L button
-			{
-				int i_Shape = 0;
-				while (g_DrawedShapes.size() > 0) {
-					Shape* bufShape = g_DrawedShapes[g_DrawedShapes.size() - 1];
-					delete bufShape;
-					g_DrawedShapes.pop_back();
-				}
-
-				bool f_Load = loadShape("data.db", g_DrawedShapes);
-				WCHAR bufferInform[100];
-				if (f_Load) {
-					wsprintf(bufferInform, L"Load file thành công");
-				}
-				else {
-					wsprintf(bufferInform, L"Load file thất bại");
-				}
-
-				InvalidateRect(hWnd, NULL, TRUE);
-
-				MessageBox(hWnd, bufferInform, L"Load file", MB_OK);
-			}
 		}
-	break;
+		case VK_DELETE: //Delete button
+		{
+			while (g_DrawedShapes.size() > 0)
+			{
+				Shape* bufShape = g_DrawedShapes[g_DrawedShapes.size() - 1];
+				g_DrawedShapes.pop_back();
+				delete bufShape;
+			}
+			InvalidateRect(hWnd, 0, TRUE);
+			break;
+		}
+		case 0x53: //S button
+		{
+			bool f_Save = saveShape("data.db", g_DrawedShapes);
+			WCHAR bufferInform[100];
+			if (f_Save) {
+				wsprintf(bufferInform, L"Lưu file thành công");
+			}
+			else {
+				wsprintf(bufferInform, L"Lưu file thất bại");
+			}
+			MessageBox(hWnd, bufferInform, L"Lưu file", MB_OK);
+			break;
+		}
+		case 0x4C: //L button
+		{
+			int i_Shape = 0;
+			while (g_DrawedShapes.size() > 0) {
+				Shape* bufShape = g_DrawedShapes[g_DrawedShapes.size() - 1];
+				g_DrawedShapes.pop_back();
+				delete bufShape;
+			}
+
+			bool f_Load = loadShape("data.db", g_DrawedShapes);
+			WCHAR bufferInform[100];
+			if (f_Load) {
+				wsprintf(bufferInform, L"Load file thành công");
+			}
+			else {
+				wsprintf(bufferInform, L"Load file thất bại");
+			}
+
+			InvalidateRect(hWnd, NULL, TRUE);
+
+			MessageBox(hWnd, bufferInform, L"Load file", MB_OK);
+			break;
+		}
+		}
+		break;
 	case WM_KEYUP:
 		switch (wParam)
 		{
-			case VK_CONTROL:
-			{
-				gControlDown = false;
-				break;
-			}
+		case VK_CONTROL:
+		{
+			gControlDown = false;
+			break;
 		}
-	break;
+		}
+		break;
 	case WM_COMMAND:
 	{
 		int wmId = LOWORD(wParam);
@@ -354,12 +376,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 		case ID_FILE_LOAD:
 		{
-			int i_Shape = 0;
-			while (g_DrawedShapes.size() > 0) {
-				Shape* bufShape = g_DrawedShapes[g_DrawedShapes.size() - 1];
-				delete bufShape;
-				g_DrawedShapes.pop_back();
-			}
 
 			bool f_Load = loadShape("data.db", g_DrawedShapes);
 			WCHAR bufferInform[100];
@@ -497,26 +513,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		RECT r;
 		GetClientRect(hWnd, &r);
 		for (int i = 0; i < g_DrawedShapes.size(); i++) {
-			if (g_DrawedShapes[i]->getClassName().compare("CLine") == 0) {
-				Line l;
-				l.setToaDo(g_DrawedShapes[i]->GetFirstPoint(), g_DrawedShapes[i]->GetSecondPoint());
-				for (int j = 0; j < g_DrawedShapes.size(); j++) {
-					if (g_DrawedShapes[j]->isIntersect(l)) {
-						gLogBrush.lbColor = RED;
-						++count;
-					}
-					else {
-						gLogBrush.lbColor = BLUE;
-					}
-				}
-			}
+			
 			g_DrawedShapes[i]->ReDraw(hdcMem);
 		}
 		/*for (int i = 0; i < g_DrawedShapes.size(); i++) {
-			
+
 		}*/
-		
-		
+
+
 		if (g_PreviewShape) {
 			g_PreviewShape->ReDraw(hdcMem);
 		}
@@ -573,9 +577,11 @@ bool saveShape(string filename, const vector<Shape*>& arrShape)
 			int typeShape = arrShape[i]->getType();
 			Point FirstPoint = arrShape[i]->GetFirstPoint();
 			Point SecondPoint = arrShape[i]->GetSecondPoint();
+			int flag = arrShape[i]->flag;
 			myFile.write((const char*)&typeShape, sizeof(int));
 			myFile.write((const char*)&FirstPoint, sizeof(Point));
 			myFile.write((const char*)&SecondPoint, sizeof(Point));
+			myFile.write((const char*)&flag, sizeof(int));
 		}
 		myFile.close();
 		return true;
@@ -594,9 +600,11 @@ bool loadShape(string filename, vector<Shape*>& arrShape)
 			int typeShape = 0;
 			Point FirstPoint;
 			Point SecondPoint;
+			int flag = -1;
 			myFile.read((char*)&typeShape, sizeof(int));
 			myFile.read((char*)&FirstPoint, sizeof(Point));
 			myFile.read((char*)&SecondPoint, sizeof(Point));
+			myFile.read((char*)&flag, sizeof(int));
 			if (typeShape == 0) break;
 
 			if (typeShape == 1) {
@@ -615,6 +623,8 @@ bool loadShape(string filename, vector<Shape*>& arrShape)
 				newShape = ShapeFactory::GetObjectType(TypeShape::TRIANGLE);
 			}
 			newShape->setToaDo(FirstPoint, SecondPoint);
+			(flag == 1) ? gLogBrush.lbColor = RED : gLogBrush.lbColor = BLUE;
+			newShape->setColor(gLogBrush);
 			arrShape.push_back(newShape);
 		}
 		myFile.close();

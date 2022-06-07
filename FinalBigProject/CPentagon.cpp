@@ -9,6 +9,8 @@ CPentagon::~CPentagon() {}
 
 void CPentagon::Draw(HDC hdc, Point LeftTop, Point RightBottom)
 {
+	mOldBrush = (HBRUSH)SelectObject(hdc, mBrush);
+
 	// Lưu lại giá trị cho đối tượng để vẽ lần sau
 	this->m_LeftTop = LeftTop;
 	this->m_RightBottom = RightBottom;
@@ -31,6 +33,7 @@ void CPentagon::Draw(HDC hdc, Point LeftTop, Point RightBottom)
 	arr[4].y = LeftTop.y + (RightBottom.x - arr[0].x) * tanf(36 * 3.14 / 180);
 
 	Polygon(hdc, arr, 5);
+	SelectObject(hdc, mOldBrush);
 }
 
 void CPentagon::ReDraw(HDC hdc)

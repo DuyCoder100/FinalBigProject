@@ -7,12 +7,11 @@ CLine::CLine()
 	type = 1;
 }
 
-CLine::~CLine()
-{
-}
+CLine::~CLine(){}
 
 void CLine::Draw(HDC hdc, Point LeftTop, Point RightBottom)
 {
+	mOldBrush = (HBRUSH)SelectObject(hdc, mBrush);
 	// Lưu lại giá trị cho đối tượng để vẽ lần sau
 	this->m_LeftTop = LeftTop;
 	this->m_RightBottom = RightBottom;
@@ -22,6 +21,7 @@ void CLine::Draw(HDC hdc, Point LeftTop, Point RightBottom)
 	LineTo(hdc, RightBottom.x, RightBottom.y);
 
 	//ReleaseDC(hwnd, hdc);
+	SelectObject(hdc, mOldBrush);
 }
 
 void CLine::ReDraw(HDC hdc)

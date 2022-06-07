@@ -9,6 +9,8 @@ CHexagon::~CHexagon() {}
 
 void CHexagon::Draw(HDC hdc, Point LeftTop, Point RightBottom)
 {
+	mOldBrush = (HBRUSH)SelectObject(hdc, mBrush);
+
 	this->m_LeftTop = LeftTop;
 	this->m_RightBottom = RightBottom;
 
@@ -33,6 +35,7 @@ void CHexagon::Draw(HDC hdc, Point LeftTop, Point RightBottom)
 	arr[5].y = LeftTop.y + (RightBottom.x - arr[0].x) * tanf(30 * 3.14 / 180);
 
 	Polygon(hdc, arr, 6);
+	SelectObject(hdc, mOldBrush);
 }
 
 void CHexagon::ReDraw(HDC hdc)

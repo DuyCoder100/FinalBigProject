@@ -8,6 +8,12 @@ Shape::Shape()
 
 Shape::~Shape() {}
 
+void Shape::setColor(const LOGBRUSH& lb)
+{
+	mBrush = CreateBrushIndirect(&lb);
+	mOldBrush = 0;
+}
+
 void Shape::setToaDo(Point LeftTop, Point RightBottom)
 {
 	this->m_LeftTop = LeftTop;

@@ -10,14 +10,21 @@ CSemiCircle::~CSemiCircle() {}
 
 void CSemiCircle::Draw(HDC hdc, Point LeftTop, Point RightBottom)
 {
+	mOldBrush = (HBRUSH)SelectObject(hdc, mBrush);
+
 	this->m_LeftTop = LeftTop;
 	this->m_RightBottom = RightBottom;
 
-	LONG radius = (RightBottom.x - LeftTop.x) / 2;
+	int radius = (RightBottom.x - LeftTop.x) / 2;
+	BeginPath(hdc);
 	MoveToEx(hdc, LeftTop.x + radius, LeftTop.y, 0);
 	LineTo(hdc, LeftTop.x, LeftTop.y);
 	AngleArc(hdc, LeftTop.x, LeftTop.y, radius, 0, 180);
-	LineTo(hdc, LeftTop.x + radius, LeftTop.y);
+	LineTo(hdc, LeftTop.x + radius + 1, LeftTop.y);
+	EndPath(hdc);
+	StrokeAndFillPath(hdc);
+
+	SelectObject(hdc, mOldBrush);
 }
 
 void CSemiCircle::ReDraw(HDC hdc)

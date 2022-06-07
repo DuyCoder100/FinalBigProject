@@ -11,11 +11,14 @@ CEllipse::~CEllipse() {}
 
 void CEllipse::Draw(HDC hdc, Point LeftTop, Point RightBottom)
 {
+	mOldBrush = (HBRUSH)SelectObject(hdc, mBrush);
+
 	// Lưu lại giá trị cho đối tượng để vẽ lần sau
 	this->m_LeftTop = LeftTop;
 	this->m_RightBottom = RightBottom;
 
 	Ellipse(hdc, LeftTop.x, LeftTop.y, RightBottom.x, RightBottom.y);
+	SelectObject(hdc, mOldBrush);
 }
 
 void CEllipse::ReDraw(HDC hdc)
@@ -64,7 +67,7 @@ bool CEllipse::isInsideEllipse(Point E)
 
 bool CEllipse::isPassThrough(Point E)
 {
-	vector<int> radius;
+	vector<int> radius = getRadius();
 	double R1 = radius[0] * 1.0;
 	double R2 = radius[1] * 1.0;
 
@@ -77,7 +80,7 @@ bool CEllipse::isPassThrough(Point E)
 
 bool CEllipse::isOutsideEllipse(Point E)
 {
-	vector<int> radius;
+	vector<int> radius = getRadius();
 	double R1 = radius[0] * 1.0;
 	double R2 = radius[1] * 1.0;
 

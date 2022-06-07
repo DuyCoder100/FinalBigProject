@@ -10,6 +10,8 @@ CTriangle::~CTriangle() {}
 
 void CTriangle::Draw(HDC hdc, Point LeftTop, Point RightBottom)
 {
+	mOldBrush = (HBRUSH)SelectObject(hdc, mBrush);
+
 	// Lưu lại giá trị cho đối tượng để vẽ lần sau
 	this->m_LeftTop = LeftTop;
 	this->m_RightBottom = RightBottom;
@@ -26,6 +28,7 @@ void CTriangle::Draw(HDC hdc, Point LeftTop, Point RightBottom)
 	arr[2].y = RightBottom.y;
 	Polygon(hdc, arr, 3);
 
+	SelectObject(hdc, mOldBrush);
 	//ReleaseDC(hwnd, hdc); // Giải phóng hdc vừa lấy từ handle
 }
 
