@@ -72,14 +72,14 @@ bool CSemiCircle::isOutsideEllipse(Point D)
 
 bool CSemiCircle::isIntersect(Line l)
 {
-	//l: ax + by + c = 0 <=> y = (-a/b)x + (-c/b) <=> y = mx + n
+	//l: ax + by = c <=> y = (-a/b)x + c/b <=> y = mx + n
 	vector<int> coefs = l.getCoefs();
 	double a = coefs[0] * 1.0;
 	double b = coefs[1] * 1.0;
 	double c = coefs[2] * 1.0;
 
 	double m = -a / b;
-	double n = -c / b;
+	double n = c / b;
 
 	//E: (x - xO)^2 / R1^2 + (y - yO)^2 + R2^2 = 1
 	int R = getRadius();

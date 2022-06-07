@@ -10,8 +10,9 @@ public:
 	
 	Line() {};
 	~Line() {};
+	//Ax + By = C;
 	vector<int> getCoefs();
 	void setToaDo(Point D, Point E);
 	bool isIntersect(Line l);
-	bool isPassThrough(Point P);
+	bool isBetween(Point P);
 };

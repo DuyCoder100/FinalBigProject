@@ -28,6 +28,10 @@ Point g_RightBottom;							// Lưu tọa độ chuột lúc sau
 // Áp dục kỹ thuật Creational.
 ShapePrototype g_ShapeModel;
 Shape* g_PreviewShape;
+LOGBRUSH gLogBrush;
+const COLORREF RED = RGB(255, 0, 0);
+const COLORREF BLUE = RGB(0, 0, 255);
+bool gControlDown = false;
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -252,8 +256,83 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		g_IsDrawed = FALSE;
 		InvalidateRect(hWnd, NULL, TRUE);
 	}
-					 break;
+	break;
+	case WM_KEYDOWN: 
+		switch(wParam)
+		{
+			case VK_CONTROL:
+			{
+				gControlDown = true;
+				break;
+			}
+			case 0x5A: //Z Button
+			{
+				if (gControlDown && g_DrawedShapes.size() != 0)
+				{
+					Shape* shape = g_DrawedShapes[g_DrawedShapes.size() - 1];
+					g_DrawedShapes.pop_back();
+					delete shape;
+					InvalidateRect(hWnd, 0, TRUE);
+					break;
+				}
+			}
+			case VK_DELETE: //Delete button
+			{
+				while (g_DrawedShapes.size() > 0) 
+				{
+					Shape* bufShape = g_DrawedShapes[g_DrawedShapes.size() - 1];
+					delete bufShape;
+					g_DrawedShapes.pop_back();
+				}
+				InvalidateRect(hWnd, 0, TRUE);
+				break;
+			}
+			case 0x53: //S button
+			{
+				bool f_Save = saveShape("data.db", g_DrawedShapes);
+				WCHAR bufferInform[100];
+				if (f_Save) {
+					wsprintf(bufferInform, L"Lưu file thành công");
+				}
+				else {
+					wsprintf(bufferInform, L"Lưu file thất bại");
+				}
+				MessageBox(hWnd, bufferInform, L"Lưu file", MB_OK);
+			}
+			case 0x4C: //L button
+			{
+				int i_Shape = 0;
+				while (g_DrawedShapes.size() > 0) {
+					Shape* bufShape = g_DrawedShapes[g_DrawedShapes.size() - 1];
+					delete bufShape;
+					g_DrawedShapes.pop_back();
+				}
 
+				bool f_Load = loadShape("data.db", g_DrawedShapes);
+				WCHAR bufferInform[100];
+				if (f_Load) {
+					wsprintf(bufferInform, L"Load file thành công");
+				}
+				else {
+					wsprintf(bufferInform, L"Load file thất bại");
+				}
+
+				InvalidateRect(hWnd, NULL, TRUE);
+
+				MessageBox(hWnd, bufferInform, L"Load file", MB_OK);
+			}
+		}
+	break;
+	case WM_KEYUP:
+		switch (wParam)
+		{
+			case VK_CONTROL:
+			{
+				gControlDown = false;
+				break;
+			}
+		}
+	break;
 	case WM_COMMAND:
 	{
 		int wmId = LOWORD(wParam);
@@ -412,25 +491,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		hbmMem = CreateCompatibleBitmap(hdc, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top);
 
 		hOld = SelectObject(hdcMem, hbmMem);
-		hNewBrush = CreateSolidBrush(RGB(255, 0, 0));
+		// hNewBrush = CreateSolidBrush(RGB(255, 0, 0));
 		// Draw into hdcMem here
 		FillRect(hdcMem, &rcClient, HBRUSH(RGB(255, 255, 255)));
 		RECT r;
 		GetClientRect(hWnd, &r);
 		for (int i = 0; i < g_DrawedShapes.size(); i++) {
-			g_DrawedShapes[i]->ReDraw(hdcMem);
-		}
-		for (int i = 0; i < g_DrawedShapes.size(); i++) {
 			if (g_DrawedShapes[i]->getClassName().compare("CLine") == 0) {
 				Line l;
 				l.setToaDo(g_DrawedShapes[i]->GetFirstPoint(), g_DrawedShapes[i]->GetSecondPoint());
 				for (int j = 0; j < g_DrawedShapes.size(); j++) {
-					if (g_DrawedShapes[j]->isIntersect(l)) ++count;
+					if (g_DrawedShapes[j]->isIntersect(l)) {
+						gLogBrush.lbColor = RED;
+						++count;
+					}
+					else {
+						gLogBrush.lbColor = BLUE;
+					}
 				}
 			}
+			g_DrawedShapes[i]->ReDraw(hdcMem);
 		}
+		/*for (int i = 0; i < g_DrawedShapes.size(); i++) {
+			
+		}*/
 		
-		DrawText(hdc, COUNT[count], lstrlen(COUNT[count]), &r, DT_CENTER);
+		
 		if (g_PreviewShape) {
 			g_PreviewShape->ReDraw(hdcMem);
 		}
@@ -438,6 +524,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// Transfer the off-screen DC to the screen
 		BitBlt(hdc, rcClient.left, rcClient.top, rcClient.right - rcClient.left,
 			rcClient.bottom - rcClient.top, hdcMem, rcClient.left, rcClient.top, SRCCOPY);
+
+		DrawText(hdc, COUNT[count], lstrlen(COUNT[count]), &r, DT_CENTER);
 
 		// Free-up the off-screen DC
 		SelectObject(hdcMem, hOld);
