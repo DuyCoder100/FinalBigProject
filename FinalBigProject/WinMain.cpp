@@ -10,6 +10,7 @@
 #include <fstream>
 #include "ShapePrototype.h"
 #include "ShapeFactory.h"
+#include <sstream>
 
 
 #define MAX_LOADSTRING 100
@@ -33,6 +34,8 @@ ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+
+HBRUSH hOldBrush, hNewBrush;
 
 bool saveShape(string filename, const vector<Shape*>& arrShape);
 bool loadShape(string filename, vector<Shape*>& arrShape);
@@ -145,7 +148,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	WCHAR COUNT[][50] = { L"Zero", L"One", L"Two", L"Three", L"Four", L"Five", L"Six", L"Seven",
+		L"Eight", L"Nine"};
 	int x, y; // Lấy tọa độ hiện tại của con chuột
+	int count = 0;
 	HMENU hMenu = GetMenu(hWnd);
 	switch (message)
 	{
@@ -392,7 +398,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_PAINT:
 	{
-
 		HDC hdcMem;
 		HBITMAP hbmMem;
 		HANDLE hOld;
@@ -407,14 +412,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		hbmMem = CreateCompatibleBitmap(hdc, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top);
 
 		hOld = SelectObject(hdcMem, hbmMem);
-
+		hNewBrush = CreateSolidBrush(RGB(255, 0, 0));
 		// Draw into hdcMem here
 		FillRect(hdcMem, &rcClient, HBRUSH(RGB(255, 255, 255)));
-
+		RECT r;
+		GetClientRect(hWnd, &r);
 		for (int i = 0; i < g_DrawedShapes.size(); i++) {
 			g_DrawedShapes[i]->ReDraw(hdcMem);
 		}
-
+		for (int i = 0; i < g_DrawedShapes.size(); i++) {
+			if (g_DrawedShapes[i]->getClassName().compare("CLine") == 0) {
+				Line l;
+				l.setToaDo(g_DrawedShapes[i]->GetFirstPoint(), g_DrawedShapes[i]->GetSecondPoint());
+				for (int j = 0; j < g_DrawedShapes.size(); j++) {
+					if (g_DrawedShapes[j]->isIntersect(l)) ++count;
+				}
+			}
+		}
+		
+		DrawText(hdc, COUNT[count], lstrlen(COUNT[count]), &r, DT_CENTER);
 		if (g_PreviewShape) {
 			g_PreviewShape->ReDraw(hdcMem);
 		}

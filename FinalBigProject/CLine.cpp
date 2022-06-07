@@ -38,3 +38,5 @@ string CLine::getClassName()
 {
 	return "CLine";
 }
+
+

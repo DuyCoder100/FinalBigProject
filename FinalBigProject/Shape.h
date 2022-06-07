@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include "Point.h"
+#include "Line.h"
+#include "FinalBigPRoject.h"
 #include <iostream>
 #include <string>
 #include <cmath>
@@ -21,7 +23,7 @@ public:
 	virtual void ReDraw(HDC hdc) = 0; // vẽ từ dữ liệu có sẵn của đối tượng
 	virtual Shape* Clone() = 0; // Nhân bản đối tượng.
 	virtual string getClassName() = 0;
-
+	virtual bool isIntersect(Line l) = 0;
 	void setToaDo(Point LeftTop, Point RightBottom);
 	int getType();
 	Point GetFirstPoint();

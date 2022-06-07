@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include <Windows.h>
+#include <vector>
+using namespace std;
 
 class Point
 {
@@ -11,3 +13,5 @@ public:
 
 	int getPosRectBetwTwoPoint(const Point& A);
 };
+
+int numberOfRootsOfQuadraticEquation(double a, double b, double c);

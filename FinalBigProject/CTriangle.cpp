@@ -39,6 +39,40 @@ Shape* CTriangle::Clone()
 	return new CTriangle();
 }
 
+bool CTriangle::isIntersect(Line l)
+{
+	vector<Point> points = getVertexes();
+	Point A = points[0];
+	Point B = points[1];
+	Point C = points[2];
+
+	int count = 0;
+	Line AB;
+	AB.setToaDo(A, B);
+	if (AB.isIntersect(l)) ++count;
+	Line BC;
+	BC.setToaDo(B, C);
+	if (BC.isIntersect(l)) ++count;
+	Line CA;
+	CA.setToaDo(C, A);
+	if (CA.isIntersect(l)) ++count;
+	return (count == 2);
+}
+
+vector<Point> CTriangle::getVertexes()
+{
+	vector<Point> points(3);
+	points[0].x = this->m_LeftTop.x;
+	points[0].y = this->m_RightBottom.y;
+
+	points[1].x = (this->m_LeftTop.x + this->m_RightBottom.x) / 2;
+	points[1].y = this->m_LeftTop.y;
+
+	points[2].x = this->m_RightBottom.x;
+	points[2].y = this->m_RightBottom.y;
+	return points;
+}
+
 string CTriangle::getClassName()
 {
 	return "Triangle";

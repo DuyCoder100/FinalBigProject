@@ -136,6 +136,7 @@
     <ClInclude Include="CTriangle.h" />
     <ClInclude Include="FinalBigProject.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="Line.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Shape.h" />
@@ -152,6 +153,7 @@
     <ClCompile Include="CRectangle.cpp" />
     <ClCompile Include="CSemiCircle.cpp" />
     <ClCompile Include="CTriangle.cpp" />
+    <ClCompile Include="Line.cpp" />
     <ClCompile Include="WinMain.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Shape.cpp" />

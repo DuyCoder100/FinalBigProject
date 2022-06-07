@@ -13,4 +13,11 @@ public:
 	void ReDraw(HDC hdc); // vẽ từ dữ liệu có sẵn của đối tượng
 	Shape* Clone(); // Nhân bản đối tượng.
 	string getClassName(); // Lấy tên của class
+	vector<int> getRadius();
+	Point getCenter();
+	bool isIntersect(Line l);
+	bool isPassThrough(Point D);
+	bool isInsideEllipse(Point D);
+	bool isOutsideEllipse(Point D);
 };
+
