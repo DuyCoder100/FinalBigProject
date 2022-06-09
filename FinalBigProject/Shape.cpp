@@ -6,7 +6,6 @@ Shape::Shape()
 	type = 0;
 }
 
-Shape::~Shape() {}
 
 void Shape::setColor(const LOGBRUSH& lb)
 {

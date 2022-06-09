@@ -3,11 +3,14 @@
 #include <vector>
 using namespace std;
 
+/*
+	Lop nay dung de luu thong tin toa do cua 1 diem.
+*/
 class Point
 {
 public:
-	int x; // hoành độ
-	int y; // tung độ
+	int x; // Hoanh do
+	int y; // Tung do
 	Point();
 	~Point();
 

@@ -7,6 +7,9 @@
 #include <cmath>
 using namespace std;
 
+/*
+	Lop nay dung de ve cac doi tuong hinh hoc len ung dung Windows
+*/
 class Shape
 {
 protected:
@@ -18,12 +21,12 @@ protected:
 public:
 	//Constructor, Destructor
 	Shape();
-	~Shape();
+	bool isIntersected = false;
 	int flag;
 	// Virtual function
 	// virtual void Draw(HDC hdc, Point LeftTop, Point RightBottom) = 0;
-	virtual void ReDraw(HDC hdc) = 0; // vẽ từ dữ liệu có sẵn của đối tượng
-	virtual Shape* Clone() = 0; // Nhân bản đối tượng.
+	virtual void ReDraw(HDC hdc) = 0; // Ve tu du lieu co san cua doi tuong
+	virtual Shape* Clone() = 0; // Nhan ban doi tuong.
 	virtual string getClassName() = 0;
 	virtual bool isIntersect(Line l) = 0;
 	void setColor(const LOGBRUSH& lb);

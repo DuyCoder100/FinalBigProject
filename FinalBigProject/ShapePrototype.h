@@ -33,5 +33,5 @@ public:
 
 	bool addModel(Shape* model);
 
-	Shape* createNewObject();	// Tạo một đối tượng mới theo shape hiện hành
+	Shape* createNewObject();	// Tao mot doi tuong moi theo shape hien hanh.
 };

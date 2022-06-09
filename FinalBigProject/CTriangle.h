@@ -9,10 +9,10 @@ public:
 
 	// Function Class
 	void Draw(HDC hdc, Point LeftTop, Point RightBottom);
-	void ReDraw(HDC hdc); // vẽ từ dữ liệu có sẵn của đối tượng
-	Shape* Clone(); // Nhân bản đối tượng.
+	void ReDraw(HDC hdc); 
+	Shape* Clone(); 
 	bool isIntersect(Line l);
 	vector<Point> getVertexes();
-	string getClassName(); // Lấy tên của class
+	string getClassName(); 
 };
 

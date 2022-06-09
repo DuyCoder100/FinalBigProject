@@ -111,7 +111,7 @@ bool CSemiCircle::isIntersect(Line l)
 	double C = xO * xO + (n - yO) * (n - yO) - R * R;
 
 	int roots = numberOfRootsOfQuadraticEquation(A, B, C);
-	if (roots == 2 && !isPassThrough(l.A) && !isPassThrough(l.B)) return true;
+	if (roots == 2 && isOutsideEllipse(l.A) && isOutsideEllipse(l.B)) return true;
 	if (roots == 1) return MN.isIntersect(l);
 	return false;
 }

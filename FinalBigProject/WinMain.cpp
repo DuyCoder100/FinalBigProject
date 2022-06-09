@@ -20,17 +20,18 @@ HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 
-vector<Shape*> g_DrawedShapes;					// Mảng các hình đã vẽ
-BOOLEAN g_IsDrawed;								// Đã bắt đầu vẽ hay chưa
-Point g_LeftTop;								// Lưu tọa độ ban đầu chuột click
-Point g_RightBottom;							// Lưu tọa độ chuột lúc sau
+vector<Shape*> g_DrawedShapes;					// Mang cac hinh da ve
+BOOLEAN g_IsDrawed;								// Da duoc ve chua?
+Point g_LeftTop;								// Toa do cua diem dau tien khi con chuot click den
+Point g_RightBottom;							// Toa do cua diem sau do khi con chuot click den
 
-// Áp dục kỹ thuật Creational.
+// Ky thuat Creational.
 ShapePrototype g_ShapeModel;
 Shape* g_PreviewShape;
 LOGBRUSH gLogBrush;
 const COLORREF RED = RGB(255, 0, 0);
 const COLORREF BLUE = RGB(0, 0, 255);
+const COLORREF GREEN = RGB(0, 255, 0);
 bool gControlDown = false;
 
 // Forward declarations of functions included in this code module:
@@ -40,6 +41,7 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 HBRUSH hOldBrush, hNewBrush;
+HFONT hFont, hOldFont;
 
 bool saveShape(string filename, const vector<Shape*>& arrShape);
 bool loadShape(string filename, vector<Shape*>& arrShape);
@@ -128,6 +130,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+	
 
 	if (!hWnd)
 	{
@@ -152,22 +155,19 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	WCHAR COUNT[][50] = { L"Zero", L"One", L"Two", L"Three", L"Four", L"Five", L"Six", L"Seven",
-		L"Eight", L"Nine" };
-	int x, y; // Lấy tọa độ hiện tại của con chuột
+	int x, y; // Lay toa do hien tai cua con chuot
 	static int count = 0;
-	
 	HMENU hMenu = GetMenu(hWnd);
 	switch (message)
 	{
 	case WM_CREATE:
-		// Khởi tạo vẽ đường thẳng
+		// Chuong trinh mac dinh o che do ve duong thang.
 		CheckMenuItem(hMenu, ID_SHAPE_LINE, MF_CHECKED);
 
-		// Cập nhật lại thuộc tính curShapeType ở lớp mẫu 
+		// Cap nhat su thay doi che do ve.
 		g_ShapeModel.setCurShapeType(SHAPE_LINE);
 
-		// Tạo các mẫu để sử dụng
+		// Tao cac khuon mau hinh de su dung sau
 		g_ShapeModel.addModel(ShapeFactory::GetObjectType(TypeShape::LINE));
 		g_ShapeModel.addModel(ShapeFactory::GetObjectType(TypeShape::RECTANGLE));
 		g_ShapeModel.addModel(ShapeFactory::GetObjectType(TypeShape::ELLIPSE));
@@ -177,24 +177,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		g_ShapeModel.addModel(ShapeFactory::GetObjectType(TypeShape::HEXAGON));
 
 
-		// Khởi tạo giá trị false lúc chưa vẽ
+		// Cap nhat trang thai: chua ve
 		g_IsDrawed = FALSE;
 
 		g_PreviewShape = NULL;
 
 		break;
-	case WM_LBUTTONDOWN: // giữ chuột
+	case WM_LBUTTONDOWN: // Giu chuot
 	{
 
 		x = GET_X_LPARAM(lParam);
 		y = GET_Y_LPARAM(lParam);
-		// Nếu chưa vẽ thì tạo một đối tượng
+		// Neu trang thai la chua ve -> Tao mot doi tuong de ve
 		if (!g_IsDrawed) {
 			g_PreviewShape = g_ShapeModel.createNewObject();
 			if (g_PreviewShape == NULL) break;
 		}
-		g_IsDrawed = TRUE; // Bắt đầu vẽ
-		// Lưu lại điểm đầu nhấp chuột
+		g_IsDrawed = TRUE; // Cap nhat trang thai: bat dau ve
+		// Luu vi tri dau tien cua con tro chuot
 		g_LeftTop.x = x;
 		g_LeftTop.y = y;
 		g_RightBottom = g_LeftTop;
@@ -211,10 +211,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			g_RightBottom.x = x;
 			g_RightBottom.y = y;
 			int curShapeType = g_ShapeModel.getCurShapeType();
+			/*
+				Nhan giu phim SHIFT lan luot cho cac hinh Elip, chu nhat, tam giac
+				se tao ra tuong ung la hinh tron, hinh vuong, hinh tam giac deu
 
+				Doi voi ngu giac va luc giac, mac dinh hinh ve ra la ngu giac deu va luc giac deu
+			*/
 			if (((wParam & MK_SHIFT) &&
 				(curShapeType == SHAPE_ELLIPSE ||
-					curShapeType == SHAPE_RECTANGLE)) ||
+					curShapeType == SHAPE_RECTANGLE ||
+					curShapeType == SHAPE_TRIANGLE)) ||
 				curShapeType == SHAPE_PENTAGON ||
 				curShapeType == SHAPE_HEXAGON) {
 				int d_Ox = abs(g_RightBottom.x - g_LeftTop.x);
@@ -244,29 +250,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		InvalidateRect(hWnd, NULL, FALSE);
 	}
 	break;
-	case WM_LBUTTONUP: { // thả chuột
+	case WM_LBUTTONUP: { // Tha chuot
 		x = GET_X_LPARAM(lParam);
 		y = GET_Y_LPARAM(lParam);
-		if (!g_IsDrawed) { // Chưa được vẽ
+		if (!g_IsDrawed) { // Neu chua ve
 			break;
 		}
-		//g_DrawedShapes.resize(100);
 		g_DrawedShapes.push_back(g_PreviewShape);
 		g_PreviewShape = NULL;
 
-		for (auto shape_1: g_DrawedShapes)
+		for (auto shape_1 : g_DrawedShapes)
 		{
 			if (shape_1->getClassName().compare("CLine") == 0) {
 				Line l;
 				l.setToaDo(shape_1->GetFirstPoint(), shape_1->GetSecondPoint());
-				for (auto shape_2: g_DrawedShapes) {
+				for (auto shape_2 : g_DrawedShapes) {
 					if (shape_2->isIntersect(l)) {
 						gLogBrush.lbColor = RED;
-						++count;
+						if (!shape_2->isIntersected)
+							++count;
+						shape_2->isIntersected = true;
 						shape_2->flag = 1;
 					}
 					else {
-						gLogBrush.lbColor = BLUE;
+						gLogBrush.lbColor = GREEN;
 						shape_2->flag = 0;
 					}
 					shape_2->setColor(gLogBrush);
@@ -285,18 +292,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			gControlDown = true;
 			break;
 		}
-		case 0x5A: //Z Button
+		case 0x5A: //Z Button -> Tuong tu nhu Undo
 		{
 			if (gControlDown && g_DrawedShapes.size() != 0)
 			{
 				Shape* shape = g_DrawedShapes[g_DrawedShapes.size() - 1];
 				g_DrawedShapes.pop_back();
+				if (shape->getClassName().compare("CLine") != 0 && count > 0)
+					--count;
 				delete shape;
 				InvalidateRect(hWnd, 0, TRUE);
-				break;
 			}
+			break;
 		}
-		case VK_DELETE: //Delete button
+		case VK_DELETE: //Delete button -> Xoa toan bo cac hinh da ve
 		{
 			while (g_DrawedShapes.size() > 0)
 			{
@@ -304,10 +313,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				g_DrawedShapes.pop_back();
 				delete bufShape;
 			}
+			count = 0;
 			InvalidateRect(hWnd, 0, TRUE);
 			break;
 		}
-		case 0x53: //S button
+		case 0x53: //S button -> Luu thong tin cac hinh da ve vao file
 		{
 			bool f_Save = saveShape("data.db", g_DrawedShapes);
 			WCHAR bufferInform[100];
@@ -320,7 +330,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			MessageBox(hWnd, bufferInform, L"Lưu file", MB_OK);
 			break;
 		}
-		case 0x4C: //L button
+		case 0x4C: //L button -> Load va ve lai cac hinh co thong tin duoc luu trong file
 		{
 			int i_Shape = 0;
 			while (g_DrawedShapes.size() > 0) {
@@ -337,7 +347,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			else {
 				wsprintf(bufferInform, L"Load file thất bại");
 			}
-
+			count = 0;
+			for (auto shape_1 : g_DrawedShapes)
+			{
+				if (shape_1->getClassName().compare("CLine") == 0) {
+					Line l;
+					l.setToaDo(shape_1->GetFirstPoint(), shape_1->GetSecondPoint());
+					for (auto shape_2 : g_DrawedShapes) {
+						if (shape_2->isIntersect(l)) {
+							gLogBrush.lbColor = RED;
+							if (!shape_2->isIntersected)
+								++count;
+							shape_2->isIntersected = true;
+							shape_2->flag = 1;
+						}
+						else {
+							gLogBrush.lbColor = GREEN;
+							shape_2->flag = 0;
+						}
+						shape_2->setColor(gLogBrush);
+					}
+				}
+			}
 			InvalidateRect(hWnd, NULL, TRUE);
 
 			MessageBox(hWnd, bufferInform, L"Load file", MB_OK);
@@ -365,12 +396,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			bool f_Save = saveShape("data.db", g_DrawedShapes);
 			WCHAR bufferInform[100];
 			if (f_Save) {
-				wsprintf(bufferInform, L"Lưu file thành công");
+				wsprintf(bufferInform, L"Save file: Successed");
 			}
 			else {
-				wsprintf(bufferInform, L"Lưu file thất bại");
+				wsprintf(bufferInform, L"Save file: Failed");
 			}
-			MessageBox(hWnd, bufferInform, L"Lưu file", MB_OK);
+			MessageBox(hWnd, bufferInform, L"Save file", MB_OK);
 
 		}
 		break;
@@ -380,10 +411,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			bool f_Load = loadShape("data.db", g_DrawedShapes);
 			WCHAR bufferInform[100];
 			if (f_Load) {
-				wsprintf(bufferInform, L"Load file thành công");
+				wsprintf(bufferInform, L"Load file: Successed");
 			}
 			else {
-				wsprintf(bufferInform, L"Load file thất bại");
+				wsprintf(bufferInform, L"Load file: Failed");
 			}
 
 			InvalidateRect(hWnd, NULL, TRUE);
@@ -500,26 +531,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(hWnd, &ps);
 		// TODO: Add any drawing code that uses hdc here...
-
+		hFont = CreateFont(30, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
+			OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, L"Arial");
+		SendMessage(hWnd, WM_SETFONT, WPARAM(hFont), TRUE);
+		hOldFont = (HFONT)SelectObject(hdc, hFont);
+		SelectObject(hdc, hOldFont);
+		DeleteObject(hFont);
 		// Create an off-screen DC for double-buffering
 		GetClientRect(hWnd, &rcClient);
 		hdcMem = CreateCompatibleDC(hdc);
 		hbmMem = CreateCompatibleBitmap(hdc, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top);
 
 		hOld = SelectObject(hdcMem, hbmMem);
-		// hNewBrush = CreateSolidBrush(RGB(255, 0, 0));
 		// Draw into hdcMem here
 		FillRect(hdcMem, &rcClient, HBRUSH(RGB(255, 255, 255)));
 		RECT r;
 		GetClientRect(hWnd, &r);
 		for (int i = 0; i < g_DrawedShapes.size(); i++) {
-			
+
 			g_DrawedShapes[i]->ReDraw(hdcMem);
 		}
-		/*for (int i = 0; i < g_DrawedShapes.size(); i++) {
-
-		}*/
-
 
 		if (g_PreviewShape) {
 			g_PreviewShape->ReDraw(hdcMem);
@@ -529,13 +560,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		BitBlt(hdc, rcClient.left, rcClient.top, rcClient.right - rcClient.left,
 			rcClient.bottom - rcClient.top, hdcMem, rcClient.left, rcClient.top, SRCCOPY);
 
-		DrawText(hdc, COUNT[count], lstrlen(COUNT[count]), &r, DT_CENTER);
+		WCHAR bufferInform_count[100];
+		wsprintf(bufferInform_count, L"The number of shapes that the line pass through is: %d", count);
+		DrawText(hdc, bufferInform_count, lstrlen(bufferInform_count), &r, DT_CENTER);
 
 		// Free-up the off-screen DC
 		SelectObject(hdcMem, hOld);
 		DeleteObject(hbmMem);
 		DeleteDC(hdcMem);
-
+		DeleteObject(hOldFont);
 		EndPaint(hWnd, &ps);
 	}
 	break;
@@ -622,8 +655,14 @@ bool loadShape(string filename, vector<Shape*>& arrShape)
 			else if (typeShape == 5) {
 				newShape = ShapeFactory::GetObjectType(TypeShape::TRIANGLE);
 			}
+			else if (typeShape == 6) {
+				newShape = ShapeFactory::GetObjectType(TypeShape::PENTAGON);
+			}
+			else if (typeShape == 7) {
+				newShape = ShapeFactory::GetObjectType(TypeShape::HEXAGON);
+			}
 			newShape->setToaDo(FirstPoint, SecondPoint);
-			(flag == 1) ? gLogBrush.lbColor = RED : gLogBrush.lbColor = BLUE;
+			(flag == 1) ? gLogBrush.lbColor = RED : gLogBrush.lbColor = GREEN;
 			newShape->setColor(gLogBrush);
 			arrShape.push_back(newShape);
 		}
