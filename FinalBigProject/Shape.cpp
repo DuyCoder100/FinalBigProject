@@ -6,7 +6,6 @@ Shape::Shape()
 	type = 0;
 }
 
-
 void Shape::setColor(const LOGBRUSH& lb)
 {
 	mBrush = CreateBrushIndirect(&lb);

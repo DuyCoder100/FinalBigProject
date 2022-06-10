@@ -16,6 +16,7 @@ public:
 	vector<int> getRadius();
 	Point getCenter();
 	bool isIntersect(Line l);
+
 	bool isPassThrough(Point D);
 	bool isInsideEllipse(Point D);
 	bool isOutsideEllipse(Point D);

@@ -1,20 +1,26 @@
 #include "Line.h"
 
+//Ax + By + C = 0
 vector<int> Line::getCoefs()
 {
 	vector<int> coefs(3);
+	//A
 	coefs[0] = B.y - A.y;
+	//B
 	coefs[1] = A.x - B.x;
+	//C
 	coefs[2] = coefs[0] * A.x + coefs[1] * A.y;
 	return coefs;
 }
 
+//Gan vao hai dau mut cua doan thang
 void Line::setToaDo(Point D, Point E)
 {
 	A = D;
 	B = E;
 }
 
+//Kiem tra hai doan thang co giao nhau hay khong
 bool Line::isIntersect(Line l)
 {
 	vector<int> coefs_1 = getCoefs();

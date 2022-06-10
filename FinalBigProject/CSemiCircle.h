@@ -13,9 +13,7 @@ public:
 	int getRadius();
 	Point getCenter();
 	
-	bool isPassThrough(Point D);
-	bool isInsideEllipse(Point D);
-	bool isOutsideEllipse(Point D);
+	bool isOutsideSemiCircle(Point D);
 	bool isIntersect(Line l);
 };
 

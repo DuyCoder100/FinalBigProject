@@ -63,7 +63,7 @@ vector<Point> CHexagon::getVertexes()
 		(this->m_RightBottom.x - points[0].x) * tanf(30 * 3.14 / 180);
 	
 	points[3].x = (this->m_LeftTop.x + this->m_RightBottom.x) / 2;
-	points[3].y = this->m_LeftTop.y;
+	points[3].y = this->m_RightBottom.y;
 
 	points[4].x = this->m_LeftTop.x;
 	points[4].y = this->m_RightBottom.y -
@@ -72,6 +72,7 @@ vector<Point> CHexagon::getVertexes()
 	points[5].x = this->m_LeftTop.x;
 	points[5].y = this->m_LeftTop.y +
 		(this->m_RightBottom.x - points[0].x) * tanf(30 * 3.14 / 180);
+
 	return points;
 }
 

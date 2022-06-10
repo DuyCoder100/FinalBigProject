@@ -131,7 +131,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 	
-
 	if (!hWnd)
 	{
 		return FALSE;
@@ -156,15 +155,15 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int x, y; // Lay toa do hien tai cua con chuot
-	static int count = 0;
-	HMENU hMenu = GetMenu(hWnd);
+	static int count = 0; //Dem so luong hinh ma duong thang di qua
+	HMENU hMenu = GetMenu(hWnd); //Lay cua so menu
 	switch (message)
 	{
-	case WM_CREATE:
+	case WM_CREATE: //Khi bat dau chuong trinh
 		// Chuong trinh mac dinh o che do ve duong thang.
 		CheckMenuItem(hMenu, ID_SHAPE_LINE, MF_CHECKED);
 
-		// Cap nhat su thay doi che do ve.
+		// Cap nhat su thay doi che do ve (trong th nay la ve duong thang)
 		g_ShapeModel.setCurShapeType(SHAPE_LINE);
 
 		// Tao cac khuon mau hinh de su dung sau
@@ -179,13 +178,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		// Cap nhat trang thai: chua ve
 		g_IsDrawed = FALSE;
-
 		g_PreviewShape = NULL;
 
 		break;
-	case WM_LBUTTONDOWN: // Giu chuot
+	case WM_LBUTTONDOWN: // Nhan chuot trai
 	{
-
 		x = GET_X_LPARAM(lParam);
 		y = GET_Y_LPARAM(lParam);
 		// Neu trang thai la chua ve -> Tao mot doi tuong de ve
@@ -201,9 +198,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	break;
 
-	case WM_MOUSEMOVE:
+	case WM_MOUSEMOVE: //Di chuot
 	{
-
 		x = GET_X_LPARAM(lParam);
 		y = GET_Y_LPARAM(lParam);
 		if (g_IsDrawed)
@@ -212,15 +208,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			g_RightBottom.y = y;
 			int curShapeType = g_ShapeModel.getCurShapeType();
 			/*
-				Nhan giu phim SHIFT lan luot cho cac hinh Elip, chu nhat, tam giac
-				se tao ra tuong ung la hinh tron, hinh vuong, hinh tam giac deu
+				Nhan giu phim SHIFT lan luot cho cac hinh Elip, hinh chu nhat
+				se tao ra tuong ung la hinh tron, hinh vuong
 
-				Doi voi ngu giac va luc giac, mac dinh hinh ve ra la ngu giac deu va luc giac deu
+				Doi voi ngu giac va luc giac, 
+				hinh ve ra la ngu giac deu va luc giac deu
 			*/
 			if (((wParam & MK_SHIFT) &&
 				(curShapeType == SHAPE_ELLIPSE ||
-					curShapeType == SHAPE_RECTANGLE ||
-					curShapeType == SHAPE_TRIANGLE)) ||
+					curShapeType == SHAPE_RECTANGLE)) ||
 				curShapeType == SHAPE_PENTAGON ||
 				curShapeType == SHAPE_HEXAGON) {
 				int d_Ox = abs(g_RightBottom.x - g_LeftTop.x);
@@ -262,13 +258,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		for (auto shape_1 : g_DrawedShapes)
 		{
 			if (shape_1->getClassName().compare("CLine") == 0) {
+				//Tao mot Line co thong tin y chang CLine do de kiem tra
 				Line l;
 				l.setToaDo(shape_1->GetFirstPoint(), shape_1->GetSecondPoint());
 				for (auto shape_2 : g_DrawedShapes) {
 					if (shape_2->isIntersect(l)) {
 						gLogBrush.lbColor = RED;
+						//Neu hinh do chua duoc kiem tra lan nao -> tang len 1
 						if (!shape_2->isIntersected)
 							++count;
+						//Luc nay hinh da duoc kiem tra la di qua roi
 						shape_2->isIntersected = true;
 						shape_2->flag = 1;
 					}
@@ -276,10 +275,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						gLogBrush.lbColor = GREEN;
 						shape_2->flag = 0;
 					}
+					//Doi mau
 					shape_2->setColor(gLogBrush);
 				}
 			}
 		}
+		//Cap nhat lai trang thai bat dau ve
 		g_IsDrawed = FALSE;
 		InvalidateRect(hWnd, NULL, TRUE);
 	}
@@ -292,20 +293,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			gControlDown = true;
 			break;
 		}
-		case 0x5A: //Z Button -> Tuong tu nhu Undo
+		case 0x5A: //Ctrl + Z Button -> Tuong tu nhu Undo
 		{
 			if (gControlDown && g_DrawedShapes.size() != 0)
 			{
 				Shape* shape = g_DrawedShapes[g_DrawedShapes.size() - 1];
 				g_DrawedShapes.pop_back();
-				if (shape->getClassName().compare("CLine") != 0 && count > 0)
+				if (shape->getClassName().compare("CLine") != 0 && count > 0 && shape->flag != 0)
 					--count;
 				delete shape;
 				InvalidateRect(hWnd, 0, TRUE);
 			}
+			if (!g_DrawedShapes.size()) count = 0;
 			break;
 		}
-		case VK_DELETE: //Delete button -> Xoa toan bo cac hinh da ve
+		case VK_DELETE: //Ctrl + Delete button -> Xoa toan bo cac hinh da ve
 		{
 			while (g_DrawedShapes.size() > 0)
 			{
@@ -317,7 +319,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			InvalidateRect(hWnd, 0, TRUE);
 			break;
 		}
-		case 0x53: //S button -> Luu thong tin cac hinh da ve vao file
+		case 0x53: //Ctrl + S button -> Luu thong tin cac hinh da ve vao file
 		{
 			bool f_Save = saveShape("data.db", g_DrawedShapes);
 			WCHAR bufferInform[100];
@@ -330,7 +332,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			MessageBox(hWnd, bufferInform, L"Lưu file", MB_OK);
 			break;
 		}
-		case 0x4C: //L button -> Load va ve lai cac hinh co thong tin duoc luu trong file
+		case 0x4C: //Ctrl + L button -> Load va ve lai cac hinh co thong tin duoc luu trong file
 		{
 			int i_Shape = 0;
 			while (g_DrawedShapes.size() > 0) {
@@ -407,7 +409,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 		case ID_FILE_LOAD:
 		{
-
 			bool f_Load = loadShape("data.db", g_DrawedShapes);
 			WCHAR bufferInform[100];
 			if (f_Load) {
@@ -416,7 +417,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			else {
 				wsprintf(bufferInform, L"Load file: Failed");
 			}
-
+			count = 0;
+			for (auto shape_1 : g_DrawedShapes)
+			{
+				if (shape_1->getClassName().compare("CLine") == 0) {
+					Line l;
+					l.setToaDo(shape_1->GetFirstPoint(), shape_1->GetSecondPoint());
+					for (auto shape_2 : g_DrawedShapes) {
+						if (shape_2->isIntersect(l)) {
+							gLogBrush.lbColor = RED;
+							if (!shape_2->isIntersected)
+								++count;
+							shape_2->isIntersected = true;
+							shape_2->flag = 1;
+						}
+						else {
+							gLogBrush.lbColor = GREEN;
+							shape_2->flag = 0;
+						}
+						shape_2->setColor(gLogBrush);
+					}
+				}
+			}
 			InvalidateRect(hWnd, NULL, TRUE);
 
 			MessageBox(hWnd, bufferInform, L"Load file", MB_OK);
@@ -531,12 +553,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(hWnd, &ps);
 		// TODO: Add any drawing code that uses hdc here...
-		hFont = CreateFont(30, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-			OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, L"Arial");
-		SendMessage(hWnd, WM_SETFONT, WPARAM(hFont), TRUE);
-		hOldFont = (HFONT)SelectObject(hdc, hFont);
-		SelectObject(hdc, hOldFont);
-		DeleteObject(hFont);
 		// Create an off-screen DC for double-buffering
 		GetClientRect(hWnd, &rcClient);
 		hdcMem = CreateCompatibleDC(hdc);
@@ -548,7 +564,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		RECT r;
 		GetClientRect(hWnd, &r);
 		for (int i = 0; i < g_DrawedShapes.size(); i++) {
-
 			g_DrawedShapes[i]->ReDraw(hdcMem);
 		}
 
@@ -568,7 +583,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		SelectObject(hdcMem, hOld);
 		DeleteObject(hbmMem);
 		DeleteDC(hdcMem);
-		DeleteObject(hOldFont);
+		//DeleteObject(hOldFont);
 		EndPaint(hWnd, &ps);
 	}
 	break;

@@ -115,5 +115,6 @@ bool CEllipse::isIntersect(Line l)
 	double C = R2 * R2 * xO * xO + R1 * R1 * (n - yO) * (n - yO) - R1 * R1 * R2 * R2;
 
 	int roots = numberOfRootsOfQuadraticEquation(A, B, C);
-	return (roots == 2 && !isPassThrough(l.A) && !isPassThrough(l.B));
+	return (roots == 2 && isOutsideEllipse(l.A) && isOutsideEllipse(l.B)
+		&& l.A.x <= xO && xO <= l.B.x);
 }

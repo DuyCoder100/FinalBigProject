@@ -9,7 +9,8 @@ public:
 
 	// Function Class
 	void Draw(HDC hdcPoint, Point LeftTop, Point RightBottom);
-	void ReDraw(HDC hdc); 
+	void ReDraw(HDC hdc);
+	//Lay toa do cua cac dinh
 	vector<Point> getVertexes();
 	bool isIntersect(Line l);
 	Shape* Clone(); 

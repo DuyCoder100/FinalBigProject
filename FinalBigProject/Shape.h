@@ -21,10 +21,10 @@ protected:
 public:
 	//Constructor, Destructor
 	Shape();
+	virtual ~Shape() {};
 	bool isIntersected = false;
 	int flag;
 	// Virtual function
-	// virtual void Draw(HDC hdc, Point LeftTop, Point RightBottom) = 0;
 	virtual void ReDraw(HDC hdc) = 0; // Ve tu du lieu co san cua doi tuong
 	virtual Shape* Clone() = 0; // Nhan ban doi tuong.
 	virtual string getClassName() = 0;

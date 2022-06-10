@@ -20,7 +20,7 @@ void CSemiCircle::Draw(HDC hdc, Point LeftTop, Point RightBottom)
 	MoveToEx(hdc, LeftTop.x + radius, LeftTop.y, 0);
 	LineTo(hdc, LeftTop.x, LeftTop.y);
 	AngleArc(hdc, LeftTop.x, LeftTop.y, radius, 0, 180);
-	LineTo(hdc, LeftTop.x + radius + 1, LeftTop.y);
+	LineTo(hdc, LeftTop.x + radius, LeftTop.y);
 	EndPath(hdc);
 	StrokeAndFillPath(hdc);
 
@@ -39,42 +39,40 @@ Shape* CSemiCircle::Clone()
 
 int CSemiCircle::getRadius()
 {
-	return (this->m_RightBottom.x - this->m_LeftTop.x) / 2;
+	return abs(this->m_RightBottom.x - this->m_LeftTop.x) / 2;
 }
 
 Point CSemiCircle::getCenter()
 {
 	Point center;
 	center.x = (this->m_LeftTop.x + this->m_RightBottom.x) / 2;
-	center.y = (this->m_LeftTop.y + this->m_RightBottom.y) / 2;
+	center.y = this->m_RightBottom.y;
 	return center;
 }
 
-bool CSemiCircle::isPassThrough(Point D)
+bool CSemiCircle::isOutsideSemiCircle(Point D)
 {
-	int R = getRadius();
+	double R = getRadius() * 1.0;
 	Point O = getCenter();
 	double xO = O.x * 1.0;
 	double yO = O.y * 1.0;
-	return ((D.x - xO) * (D.x - xO) + (D.y - yO) * (D.y - yO) - R * R == 0);
-}
 
-bool CSemiCircle::isInsideEllipse(Point D)
-{
-	int R = getRadius();
-	Point O = getCenter();
-	double xO = O.x * 1.0;
-	double yO = O.y * 1.0;
-	return ((D.x - xO) * (D.x - xO) + (D.y - yO) * (D.y - yO) - R * R < 0);
-}
+	Point M;
+	M.x = this->m_LeftTop.x;
+	M.y = this->m_RightBottom.y;
 
-bool CSemiCircle::isOutsideEllipse(Point D)
-{
-	int R = getRadius();
-	Point O = getCenter();
-	double xO = O.x * 1.0;
-	double yO = O.y * 1.0;
-	return ((D.x - xO) * (D.x - xO) + (D.y - yO) * (D.y - yO) - R * R > 0);
+	Point N;
+	N.x = this->m_RightBottom.x;
+	N.y = this->m_RightBottom.y;
+
+	Line MN;
+	MN.setToaDo(M, N);
+	vector<int> coefs = MN.getCoefs();
+	double A = coefs[0] * 1.0;
+	double B = coefs[1] * 1.0;
+	double C = -coefs[2] * 1.0;
+	return !((D.x - xO) * (D.x - xO) + (D.y - yO) * (D.y - yO) - R * R < 0
+		&& A * D.x + B * D.y + C > 0);
 }
 
 bool CSemiCircle::isIntersect(Line l)
@@ -83,37 +81,31 @@ bool CSemiCircle::isIntersect(Line l)
 	vector<int> coefs = l.getCoefs();
 	double a = coefs[0] * 1.0;
 	double b = coefs[1] * 1.0;
-	double c = coefs[2] * 1.0;
+	double c = -coefs[2] * 1.0;
 
-	double m = -a / b;
-	double n = c / b;
 
-	//E: (x - xO)^2 / R1^2 + (y - yO)^2 + R2^2 = 1
-	int R = getRadius();
-	
+	//E: (x - xO)^2 + (y - yO)^2 = R^2
+	double R = getRadius() * 1.0;
+
 	Point center = getCenter();
 	double xO = center.x * 1.0;
 	double yO = center.y * 1.0;
 
 	Point M;
-	M.x = xO - R;
-	M.y = yO;
+	M.x = this->m_LeftTop.x;
+	M.y = this->m_RightBottom.y;
 
 	Point N;
-	N.x = xO + R;
-	N.y = yO;
+	N.x = this->m_RightBottom.x;
+	N.y = this->m_RightBottom.y;
 
 	Line MN;
 	MN.setToaDo(M, N);
 
-	double A = m * m + 1;
-	double B = 2 * (m * (n - yO) - xO);
-	double C = xO * xO + (n - yO) * (n - yO) - R * R;
+	double d = abs(a * xO + b * yO + c) / sqrt(a * a + b * b);
 
-	int roots = numberOfRootsOfQuadraticEquation(A, B, C);
-	if (roots == 2 && isOutsideEllipse(l.A) && isOutsideEllipse(l.B)) return true;
-	if (roots == 1) return MN.isIntersect(l);
-	return false;
+	return (isOutsideSemiCircle(l.A) && isOutsideSemiCircle(l.B)
+		&& d < R && (l.A.y >= yO || l.B.y >= yO));
 }
 
 string CSemiCircle::getClassName()
